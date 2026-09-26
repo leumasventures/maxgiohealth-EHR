@@ -1,0 +1,1178 @@
+For MaxgioHealth, I would build the frontend as a modular EHR rather than one large dashboard. The structure below supports psychiatry first, while leaving room for primary care and other specialties later.
+1. Frontend architecture
+I recommend:
+•	Next.jsh
+•	React + TypeScript
+•	Tailwind CSS
+•	shadcn/ui
+•	React Hook Form + Zod
+•	TanStack Query for server state
+•	TanStack Table for clinical/admin tables
+•	Recharts for clinical dashboards
+•	Lucide React for icons
+A practical frontend structure:
+maxgiohealth/
+├── app/
+│   ├── login/
+│   ├── dashboard/
+│   ├── patients/
+│   ├── appointments/
+│   ├── calendar/
+│   ├── encounters/
+│   ├── notes/
+│   ├── medications/
+│   ├── prescriptions/
+│   ├── labs/
+│   ├── diagnoses/
+│   ├── assessments/
+│   ├── treatment-plans/
+│   ├── telehealth/
+│   ├── messages/
+│   ├── referrals/
+│   ├── documents/
+│   ├── billing/
+│   ├── claims/
+│   ├── tasks/
+│   ├── reports/
+│   ├── settings/
+│   └── admin/
+│
+├── components/
+│   ├── layout/
+│   ├── patients/
+│   ├── encounters/
+│   ├── notes/
+│   ├── medications/
+│   ├── assessments/
+│   ├── appointments/
+│   ├── billing/
+│   ├── telehealth/
+│   ├── messaging/
+│   └── ui/
+│
+├── features/
+│   ├── authentication/
+│   ├── patient-chart/
+│   ├── clinical-notes/
+│   ├── medication-management/
+│   ├── scheduling/
+│   ├── assessments/
+│   ├── billing/
+│   └── communication/
+│
+├── lib/
+│   ├── api/
+│   ├── auth/
+│   ├── validation/
+│   ├── permissions/
+│   ├── formatting/
+│   └── constants/
+│
+├── types/
+│   ├── patient.ts
+│   ├── encounter.ts
+│   ├── medication.ts
+│   ├── appointment.ts
+│   ├── assessment.ts
+│   └── billing.ts
+│
+└── public/
+2. Main application shell
+Every authenticated user should see the same basic application shell.
+┌──────────────────────────────────────────────────────────────┐
+│ MAXGIOHEALTH                              🔔  🔍  User       │
+├───────────────┬──────────────────────────────────────────────┤
+│               │                                              │
+│ Dashboard     │                                              │
+│ Patients      │              MAIN CONTENT                    │
+│ Appointments  │                                              │
+│ Calendar      │                                              │
+│ Encounters    │                                              │
+│ Notes         │                                              │
+│ Medications   │                                              │
+│ Assessments   │                                              │
+│ Labs          │                                              │
+│ Referrals     │                                              │
+│ Documents     │                                              │
+│ Messages      │                                              │
+│ Billing       │                                              │
+│ Reports       │                                              │
+│ Tasks         │                                              │
+│               │                                              │
+│ Settings      │                                              │
+└───────────────┴──────────────────────────────────────────────┘
+Reusable components:
+<AppShell>
+  <Sidebar />
+  <TopNavigation />
+  <Breadcrumbs />
+  <PageContainer />
+  <GlobalSearch />
+  <NotificationCenter />
+</AppShell>
+ 
+3. Authentication module
+Routes
+/login
+/forgot-password
+/reset-password
+/mfa
+Screens
+Login
+Fields:
+Email
+Password
+Remember me
+Sign In
+Forgot password?
+Optional MFA:
+Enter verification code
+Trust this device
+Verify
+Components
+LoginForm
+PasswordInput
+MFAForm
+SessionTimeoutModal
+SecurityAlert
+ 
+4. Dashboard module
+The dashboard should be different depending on the user's role.
+Provider dashboard
+Good morning, Dr. [Name]
+
+Today's Schedule
+────────────────────────────
+09:00  Patient A
+09:30  Patient B
+10:00  Patient C
+
+Today's Tasks
+────────────────────────────
+□ Complete 3 notes
+□ Review 4 lab results
+□ Sign 2 prescriptions
+□ Respond to 5 messages
+
+Clinical Alerts
+────────────────────────────
+3 refill requests
+2 abnormal labs
+1 overdue assessment
+
+Quick Actions
+────────────────────────────
+[New Patient]
+[New Encounter]
+[New Prescription]
+[New Appointment]
+Admin dashboard
+Show:
+•	appointments
+•	cancellations
+•	no-shows
+•	outstanding balances
+•	claims
+•	insurance verification
+•	provider productivity
+ 
+5. Patient management module
+This is the core of the EHR.
+Routes
+/patients
+/patients/new
+/patients/[id]
+/patients/[id]/demographics
+/patients/[id]/clinical
+/patients/[id]/medications
+/patients/[id]/assessments
+/patients/[id]/labs
+/patients/[id]/documents
+/patients/[id]/messages
+/patients/[id]/billing
+Patient list
+Columns:
+Patient
+DOB
+MRN
+Phone
+Last Visit
+Next Appointment
+Provider
+Status
+Filters:
+Search
+Provider
+Status
+Date of birth
+Last visit
+Insurance
+New patient
+Sections:
+Demographics
+Contact Information
+Emergency Contact
+Insurance
+Primary Care Provider
+Pharmacy
+Preferred Pharmacy
+Consent
+Communication Preferences
+Clinical Alerts
+ 
+6. Patient chart
+The patient chart should have a persistent header.
+┌───────────────────────────────────────────────────────────┐
+│ Jane Doe | MRN 102394 | DOB 04/15/1990                  │
+│ Allergies: NKDA | Medications: 4 | Risk: Low             │
+│                                                           │
+│ [New Encounter] [Prescription] [Message] [Appointment]    │
+└───────────────────────────────────────────────────────────┘
+Tabs:
+Overview
+Encounters
+Notes
+Diagnoses
+Medications
+Allergies
+Assessments
+Labs
+Documents
+Treatment Plan
+Referrals
+Messages
+Billing
+ 
+7. Psychiatry encounter module
+This should be one of the strongest modules for MaxgioHealth.
+Encounter types
+Psychiatric Intake
+Psychiatric Follow-Up
+Medication Management
+Crisis Evaluation
+Telepsychiatry
+Psychotherapy
+ADHD Evaluation
+Diagnostic Evaluation
+Encounter workspace
+Chief Complaint
+HPI
+Psychiatric History
+Medical History
+Medication History
+Family Psychiatric History
+Social History
+Substance Use
+Psychiatric ROS
+Mental Status Examination
+Risk Assessment
+Assessment
+Diagnoses
+Medical Decision Making
+Treatment Plan
+Therapy Intervention
+Therapy Response
+Medical Necessity
+Follow-Up
+The note editor should support:
+[Save Draft]
+[Sign Note]
+[Add Diagnosis]
+[Add Medication]
+[Add Assessment]
+[Add MSE]
+[Add Therapy]
+[Generate From Template]
+ 
+8. Clinical note module
+Create reusable templates.
+Templates
+Psychiatry Intake
+Psychiatry SOAP
+Medication Management
+90833 Psychotherapy
+Crisis Assessment
+ADHD Evaluation
+Depression Follow-Up
+Anxiety Follow-Up
+PTSD Follow-Up
+Bipolar Follow-Up
+Sleep Evaluation
+Substance Use Evaluation
+Note editor
+Use a section-based editor:
+┌─────────────────────────────────────────┐
+│ Psychiatry Follow-Up                    │
+├─────────────────────────────────────────┤
+│ HPI                                     │
+│                                         │
+│ [rich text editor]                      │
+│                                         │
+├─────────────────────────────────────────┤
+│ Psychiatric ROS                         │
+│                                         │
+│ Depression       □ Negative □ Positive  │
+│ Anxiety          □ Negative □ Positive  │
+│ Mania            □ Negative □ Positive  │
+│ Psychosis        □ Negative □ Positive  │
+│ SI               □ Negative □ Positive  │
+│ HI               □ Negative □ Positive  │
+└─────────────────────────────────────────┘
+ 
+9. Mental Status Examination module
+Instead of typing everything manually, create structured fields.
+Appearance
+Behavior
+Attitude
+Eye Contact
+Psychomotor Activity
+Speech
+Mood
+Affect
+Thought Process
+Thought Content
+Perception
+Orientation
+Attention
+Memory
+Fund of Knowledge
+Insight
+Judgment
+Impulse Control
+Each can have dropdowns plus free text.
+Example:
+Mood
+[ Euthymic ▼ ]
+
+Affect
+[ Congruent ▼ ]
+
+Thought Process
+[ Linear / Logical / Goal Directed ▼ ]
+Then allow:
+Generate Narrative
+to create the final documentation from structured selections.
+ 
+10. Risk assessment module
+Structured psychiatric risk assessment:
+Suicidal Ideation
+Suicidal Intent
+Suicidal Plan
+Access to Means
+Previous Attempts
+Self-Harm
+Homicidal Ideation
+Psychosis
+Mania
+Substance Use
+Protective Factors
+Risk Factors
+Acute Risk
+Chronic Risk
+Safety Plan
+Risk status:
+No Acute Safety Concern
+Low
+Moderate
+High
+Do not make this automatically infer risk from a single checkbox. Require clinician confirmation before signing.
+ 
+11. Assessment and screening module
+This is particularly important for your psychiatry practice.
+Built-in assessments
+PHQ-9
+GAD-7
+ASRS-v1.1
+MDQ
+PCL-5
+AUDIT-C
+DAST-10
+C-SSRS
+AIMS
+MoCA
+The system should calculate scores automatically.
+Example:
+PHQ-9
+
+1. Little interest or pleasure
+○ 0
+○ 1
+○ 2
+○ 3
+
+...
+
+Score: 16
+
+Severity:
+Moderately Severe
+
+Previous:
+12
+
+Change:
++4
+Assessment history
+Date       Tool       Score
+09/25/26   PHQ-9      16
+08/25/26   PHQ-9      12
+07/25/26   PHQ-9      9
+A graph can show symptom trajectory.
+ 
+12. ADHD evaluation module
+A dedicated workflow would be useful for MaxgioHealth.
+ADHD Evaluation
+│
+├── Presenting Symptoms
+├── Childhood History
+├── Academic History
+├── Occupational History
+├── Executive Function
+├── Family History
+├── ASRS
+├── Psychological Testing
+├── Differential Diagnosis
+├── Functional Impairment
+├── Medical Review
+├── Substance Use
+└── Diagnostic Impression
+Document upload:
+Psychological Evaluation
+Testing Report
+School Records
+Prior ADHD Records
+Status:
+Requested
+Received
+Reviewed
+Pending Clarification
+ 
+13. Medication management
+Medication list
+Medication
+Dose
+Route
+Frequency
+Start Date
+Prescriber
+Indication
+Status
+Example:
+Sertraline
+50 mg
+PO
+Daily
+Active
+Anxiety/Depression
+Actions:
+Edit
+Discontinue
+Renew
+Refill
+Medication History
+Medication detail
+Medication
+Dose
+Frequency
+Indication
+Response
+Side Effects
+Adherence
+Patient Comments
+Provider Comments
+ 
+14. Prescription module
+New Prescription
+
+Patient: Jane Doe
+
+Medication:
+[ Search medication ]
+
+Dose:
+[ 50 mg ]
+
+Route:
+[ Oral ]
+
+Frequency:
+[ Daily ]
+
+Quantity:
+[ 30 ]
+
+Refills:
+[ 1 ]
+
+Start Date:
+[ ]
+
+Pharmacy:
+[ Walgreens ]
+
+Instructions:
+[ ]
+
+[Cancel] [Send Prescription]
+For controlled substances, build a dedicated warning and confirmation workflow.
+ 
+15. Medication reconciliation
+At every encounter:
+Current Medications
+
+☑ Sertraline 50 mg
+☑ Dexmethylphenidate 5 mg
+☐ Bupropion 150 mg
+
+[Confirm All]
+[Add Medication]
+[Mark Not Taking]
+Show:
+New since last visit
+Changed dose
+Discontinued
+Potential duplicate
+ 
+16. Allergy module
+Allergies
+
+Substance
+Reaction
+Severity
+Status
+Example:
+Cat dander
+Rhinitis
+Moderate
+Active
+Medication allergy alerts should be prominent.
+ 
+17. Labs module
+Lab dashboard
+Pending
+Reviewed
+Abnormal
+Critical
+Lab results
+CBC
+CMP
+TSH
+Vitamin D
+B12
+Ferritin
+A1C
+Lipid Panel
+Testosterone
+Example:
+TSH
+
+Result: 2.31
+Reference: 0.40–4.50
+Status: Normal
+
+[Mark Reviewed]
+[Add Clinical Note]
+ 
+18. Appointment module
+Appointment types
+Initial Evaluation
+Follow-Up
+Medication Management
+Psychotherapy
+ADHD Evaluation
+Crisis Visit
+Telehealth
+Appointment card:
+10:00 AM
+
+Jane Doe
+Medication Management
+Telehealth
+
+[Open Chart]
+[Start Visit]
+[Reschedule]
+[Cancel]
+ 
+19. Calendar
+Views:
+Day
+Week
+Month
+Filters:
+Provider
+Location
+Appointment Type
+Telehealth
+Status
+Color coding can be based on appointment type.
+ 
+20. Telehealth module
+Telehealth Waiting Room
+
+Patient:
+Jane Doe
+
+Appointment:
+Medication Management
+
+Scheduled:
+10:00 AM
+
+Patient Status:
+Waiting
+
+[Start Video Visit]
+During visit:
+Video
+Microphone
+Camera
+Chat
+Patient Chart
+Notes
+Assessment
+Prescription
+End Visit
+The clinician should be able to view the chart without leaving the encounter.
+ 
+21. Messaging module
+Internal and patient messaging:
+Inbox
+Sent
+Archived
+Unread
+Urgent
+Message:
+Jane Doe
+Subject: Medication Question
+
+Message...
+
+[Reply]
+[Attach]
+[Mark Important]
+Patient messages should be connected to the patient's chart.
+ 
+22. Patient portal module
+Patients should eventually have their own portal.
+Patient Portal
+
+Home
+Appointments
+Messages
+Medications
+Assessments
+Documents
+Billing
+Profile
+Patient capabilities:
+Request appointment
+Complete screening
+View medications
+Request refill
+Send secure message
+Upload documents
+View visit summaries
+Complete forms
+View bills
+ 
+23. Documents module
+Documents
+
+Psychological Evaluations
+Consent Forms
+Medical Records
+Hospital Records
+Letters
+Labs
+Imaging
+Insurance
+Other
+Actions:
+Upload
+Preview
+Download
+Attach to Encounter
+Attach to Patient
+Archive
+ 
+24. Referral module
+New Referral
+
+Patient
+Referral Type
+Specialist
+Reason
+Clinical Question
+Urgency
+Supporting Documents
+Referral statuses:
+Draft
+Sent
+Received
+Scheduled
+Completed
+Closed
+ 
+25. Treatment plan module
+Treatment Plan
+
+Problem
+Goal
+Objective
+Intervention
+Target Date
+Status
+Example:
+Problem:
+ADHD symptoms
+
+Goal:
+Improve task completion and organization
+
+Intervention:
+Medication management
+Behavioral strategies
+Executive functioning support
+
+Status:
+Active
+ 
+26. Billing module
+Separate clinical information from financial workflows.
+Billing Dashboard
+
+Today's Charges
+Pending Claims
+Denied Claims
+Outstanding Balances
+Payments
+Claim:
+Patient
+Date of Service
+Provider
+CPT
+ICD-10
+Modifier
+Charge
+Insurance
+Claim Status
+ 
+27. CPT/ICD module
+Searchable diagnosis and procedure selection:
+Search ICD-10
+
+F90.2
+F41.9
+F32.A
+F43.10
+CPT:
+90792
+99213
+99214
+99215
+90833
+The frontend should never silently select billing codes. The provider or authorized billing user should confirm them.
+ 
+28. Reports module
+Provider reports:
+Patient Volume
+Visits
+No-Shows
+Cancellation Rate
+Medication Visits
+New Evaluations
+Follow-Ups
+Screening Scores
+Clinical reports:
+PHQ-9 trends
+GAD-7 trends
+ASRS trends
+Medication response
+Patient outcomes
+Administrative:
+Revenue
+Claims
+Collections
+Outstanding balances
+ 
+29. Tasks module
+My Tasks
+
+□ Sign patient note
+□ Review psychological evaluation
+□ Review lab
+□ Respond to patient
+□ Complete prior authorization
+□ Send referral
+□ Call pharmacy
+Task fields:
+Task
+Patient
+Assigned To
+Due Date
+Priority
+Status
+ 
+30. Prior authorization module
+This would be particularly useful for psychiatric medications.
+Prior Authorizations
+
+Patient
+Medication
+Insurance
+Diagnosis
+Request Date
+Status
+Expiration
+Statuses:
+Draft
+Submitted
+Pending
+Approved
+Denied
+Appeal
+Expired
+ 
+31. Notifications
+Global notification center:
+🔔 Notifications
+
+3 new patient messages
+2 refill requests
+1 abnormal lab
+2 unsigned notes
+1 prior authorization update
+Each notification should deep-link to the relevant chart/workflow.
+ 
+32. Search
+Create a global search available from every page.
+Search MaxgioHealth
+
+Search patients, MRNs, medications,
+appointments, notes, documents...
+Results:
+Patients
+Encounters
+Documents
+Messages
+Appointments
+Patient search should support:
+Name
+DOB
+MRN
+Phone
+Email
+ 
+33. Settings module
+Practice settings
+Practice Information
+Locations
+Providers
+Departments
+Services
+Business Hours
+Appointment Types
+Clinical settings
+Note Templates
+Assessment Templates
+Medication Preferences
+Diagnosis Favorites
+Treatment Plan Templates
+User settings
+Profile
+Password
+MFA
+Notifications
+Signature
+Default Templates
+ 
+34. Admin module
+Only authorized administrative users should see this.
+/admin
+Modules:
+Users
+Roles
+Providers
+Locations
+Patients
+Insurance
+Billing
+Templates
+Audit Logs
+System Settings
+ 
+35. Role based frontend
+I would define these roles from the beginning:
+SUPER_ADMIN
+PRACTICE_ADMIN
+PROVIDER
+PSYCHIATRIST
+NP
+PA
+THERAPIST
+NURSE
+MEDICAL_ASSISTANT
+BILLING
+SCHEDULER
+PATIENT
+Example:
+type UserRole =
+  | "SUPER_ADMIN"
+  | "PRACTICE_ADMIN"
+  | "PROVIDER"
+  | "PSYCHIATRIST"
+  | "NP"
+  | "PA"
+  | "THERAPIST"
+  | "NURSE"
+  | "MEDICAL_ASSISTANT"
+  | "BILLING"
+  | "SCHEDULER"
+  | "PATIENT";
+Permissions should be granular rather than simply hiding pages.
+type Permission =
+  | "patient.read"
+  | "patient.create"
+  | "patient.edit"
+  | "clinical_note.create"
+  | "clinical_note.sign"
+  | "medication.prescribe"
+  | "medication.refill"
+  | "lab.read"
+  | "lab.sign"
+  | "billing.read"
+  | "billing.edit"
+  | "user.manage"
+  | "audit.read";
+ 
+36. Reusable UI components
+Build these once and use them throughout the application:
+Button
+Input
+Select
+Combobox
+DatePicker
+TimePicker
+Modal
+Drawer
+Tabs
+Card
+Badge
+Alert
+Toast
+Dropdown
+Tooltip
+DataTable
+Pagination
+SearchInput
+PatientSelector
+ProviderSelector
+MedicationSelector
+DiagnosisSelector
+AppointmentSelector
+FileUploader
+RichTextEditor
+NoteEditor
+AssessmentForm
+ScoreDisplay
+Timeline
+ActivityFeed
+EmptyState
+LoadingState
+ErrorState
+ConfirmDialog
+ 
+37. Clinical components
+Create specialized components:
+PatientHeader
+PatientSummary
+MedicationList
+MedicationCard
+AllergyList
+DiagnosisList
+ProblemList
+AssessmentCard
+AssessmentScore
+AssessmentHistory
+RiskAssessment
+MentalStatusExam
+PsychROS
+TreatmentPlan
+ClinicalTimeline
+EncounterHeader
+EncounterSidebar
+NoteSection
+PrescriptionForm
+LabResult
+LabTrendChart
+ReferralCard
+DocumentCard
+ 
+38. Patient chart layout
+I would make this the central UX of MaxgioHealth:
+                         PATIENT HEADER
+┌──────────────────────────────────────────────────────────────┐
+│ Jane Doe | DOB | MRN | Allergies | Risk                     │
+│ [New Encounter] [Rx] [Message] [Appointment]                │
+└──────────────────────────────────────────────────────────────┘
+
+┌───────────────┬──────────────────────────────────────────────┐
+│               │                                              │
+│ Overview      │                                              │
+│ Encounters    │              CHART CONTENT                   │
+│ Notes         │                                              │
+│ Diagnoses     │                                              │
+│ Medications   │                                              │
+│ Assessments   │                                              │
+│ Labs          │                                              │
+│ Documents     │                                              │
+│ Treatment     │                                              │
+│ Referrals     │                                              │
+│ Messages      │                                              │
+│ Billing       │                                              │
+│               │                                              │
+└───────────────┴──────────────────────────────────────────────┘
+ 
+39. Clinical timeline
+Every patient's chart should have a chronological timeline:
+Sep 25, 2026
+Psychiatry Follow-Up
+PHQ-9: 16
+GAD-7: 14
+Sertraline continued
+Dexmethylphenidate started
+
+Sep 10, 2026
+Psychological Evaluation
+ADHD evaluation uploaded
+
+Aug 25, 2026
+Medication Management
+Sertraline 50 mg
+This becomes one of the most useful screens in the entire EHR.
+ 
+40. Frontend route map
+A clean route system would look like this:
+/login
+
+/dashboard
+
+/patients
+/patients/new
+/patients/[patientId]
+
+/patients/[patientId]/overview
+/patients/[patientId]/encounters
+/patients/[patientId]/notes
+/patients/[patientId]/medications
+/patients/[patientId]/diagnoses
+/patients/[patientId]/assessments
+/patients/[patientId]/labs
+/patients/[patientId]/documents
+/patients/[patientId]/treatment-plan
+/patients/[patientId]/referrals
+/patients/[patientId]/messages
+/patients/[patientId]/billing
+
+/encounters
+/encounters/new
+/encounters/[encounterId]
+
+/appointments
+/calendar
+
+/medications
+/prescriptions
+
+/assessments
+/assessments/[assessmentId]
+
+/labs
+/referrals
+/documents
+/messages
+/telehealth
+
+/billing
+/claims
+/prior-authorizations
+
+/tasks
+/reports
+
+/settings
+/admin
+41. Recommended first version
+I would not try to build every module simultaneously.
+The first MaxgioHealth release should focus on this clinical loop:
+Login
+   ↓
+Dashboard
+   ↓
+Patient Search
+   ↓
+Patient Chart
+   ↓
+Appointment
+   ↓
+Encounter
+   ↓
+Psychiatric Note
+   ↓
+Assessment
+   ↓
+Diagnosis
+   ↓
+Medication
+   ↓
+Prescription
+   ↓
+Follow-Up
+That gives you a functioning psychiatric EHR before adding billing, claims, referrals, analytics, and the patient portal.
+MVP navigation
+Dashboard
+Patients
+Appointments
+Calendar
+Encounters
+Notes
+Medications
+Assessments
+Labs
+Messages
+Documents
+Tasks
+Settings
+Most important MaxgioHealth differentiator
+Given the type of psychiatry practice you are building, I would make the Psychiatry Encounter Workspace the centerpiece rather than making the app look like a generic primary-care EHR.
+It should allow the provider to have, on one screen:
+Patient Information
+        ↓
+Current Medications
+        ↓
+Previous Diagnoses
+        ↓
+PHQ-9 / GAD-7 / ASRS
+        ↓
+Psych ROS
+        ↓
+MSE
+        ↓
+Risk Assessment
+        ↓
+HPI / Clinical Narrative
+        ↓
+Assessment & Diagnosis
+        ↓
+MDM
+        ↓
+Therapy Intervention / Response
+        ↓
+Prescription
+        ↓
+Treatment Plan
+        ↓
+Follow-Up
+That design will make the system much more useful for actual psychiatric visits than a generic EHR interface.
+
