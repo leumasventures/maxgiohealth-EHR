@@ -1,11 +1,12 @@
-import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter,
+  Navigate,
+  Route,
+  Routes,
+} from "react-router-dom";
 
-import AppShell from "./components/layout/AppShell";
-
-// Authentication
+import AppShell from "./component/layout/AppShell";
 import LoginPage from "./pages/LoginPage";
-
-// Main modules
 import DashboardPage from "./pages/DashboardPage";
 import PatientsPage from "./pages/PatientsPage";
 import AppointmentsPage from "./pages/AppointmentsPage";
@@ -28,119 +29,46 @@ import TasksPage from "./pages/TasksPage";
 import ReportsPage from "./pages/ReportsPage";
 import SettingsPage from "./pages/SettingsPage";
 import AdminPage from "./pages/AdminPage";
-
-// Patient chart
 import PatientChartPage from "./pages/PatientChartPage";
+
+function RequireAuth({ children }: { children: React.ReactNode }) {
+  const token = localStorage.getItem("maxgiohealth_token");
+  if (!token) return <Navigate to="/login" replace />;
+  return <>{children}</>;
+}
 
 function ProtectedRoutes() {
   return (
-    <AppShell>
-      <Routes>
-        <Route path="/dashboard" element={<DashboardPage />} />
-
-        <Route path="/patients" element={<PatientsPage />} />
-        <Route
-          path="/patients/:patientId"
-          element={<PatientChartPage />}
-        />
-
-        <Route
-          path="/appointments"
-          element={<AppointmentsPage />}
-        />
-
-        <Route path="/calendar" element={<CalendarPage />} />
-
-        <Route
-          path="/encounters"
-          element={<EncountersPage />}
-        />
-
-        <Route path="/notes" element={<NotesPage />} />
-
-        <Route
-          path="/medications"
-          element={<MedicationsPage />}
-        />
-
-        <Route
-          path="/prescriptions"
-          element={<PrescriptionsPage />}
-        />
-
-        <Route path="/labs" element={<LabsPage />} />
-
-        <Route
-          path="/diagnoses"
-          element={<DiagnosesPage />}
-        />
-
-        <Route
-          path="/assessments"
-          element={<AssessmentsPage />}
-        />
-
-        <Route
-          path="/treatment-plans"
-          element={<TreatmentPlansPage />}
-        />
-
-        <Route
-          path="/telehealth"
-          element={<TelehealthPage />}
-        />
-
-        <Route
-          path="/messages"
-          element={<MessagesPage />}
-        />
-
-        <Route
-          path="/referrals"
-          element={<ReferralsPage />}
-        />
-
-        <Route
-          path="/documents"
-          element={<DocumentsPage />}
-        />
-
-        <Route
-          path="/billing"
-          element={<BillingPage />}
-        />
-
-        <Route
-          path="/claims"
-          element={<ClaimsPage />}
-        />
-
-        <Route
-          path="/tasks"
-          element={<TasksPage />}
-        />
-
-        <Route
-          path="/reports"
-          element={<ReportsPage />}
-        />
-
-        <Route
-          path="/settings"
-          element={<SettingsPage />}
-        />
-
-        <Route
-          path="/admin"
-          element={<AdminPage />}
-        />
-
-        <Route
-          path="*"
-          element={<Navigate to="/dashboard" replace />}
-        />
-      </Routes>
-    </AppShell>
+    <RequireAuth>
+      <AppShell>
+        <Routes>
+          <Route path="/dashboard" element={<DashboardPage />} />
+          <Route path="/patients" element={<PatientsPage />} />
+          <Route path="/patients/:patientId" element={<PatientChartPage />} />
+          <Route path="/appointments" element={<AppointmentsPage />} />
+          <Route path="/calendar" element={<CalendarPage />} />
+          <Route path="/encounters" element={<EncountersPage />} />
+          <Route path="/notes" element={<NotesPage />} />
+          <Route path="/medications" element={<MedicationsPage />} />
+          <Route path="/prescriptions" element={<PrescriptionsPage />} />
+          <Route path="/labs" element={<LabsPage />} />
+          <Route path="/diagnoses" element={<DiagnosesPage />} />
+          <Route path="/assessments" element={<AssessmentsPage />} />
+          <Route path="/treatment-plans" element={<TreatmentPlansPage />} />
+          <Route path="/telehealth" element={<TelehealthPage />} />
+          <Route path="/messages" element={<MessagesPage />} />
+          <Route path="/referrals" element={<ReferralsPage />} />
+          <Route path="/documents" element={<DocumentsPage />} />
+          <Route path="/billing" element={<BillingPage />} />
+          <Route path="/claims" element={<ClaimsPage />} />
+          <Route path="/tasks" element={<TasksPage />} />
+          <Route path="/reports" element={<ReportsPage />} />
+          <Route path="/settings" element={<SettingsPage />} />
+          <Route path="/admin" element={<AdminPage />} />
+          <Route path="*" element={<Navigate to="/dashboard" replace />} />
+        </Routes>
+      </AppShell>
+    </RequireAuth>
   );
 }
 
@@ -148,16 +76,9 @@ export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Public routes */}
         <Route path="/login" element={<LoginPage />} />
-
-        {/* Protected application */}
-        <Route
-          path="/*"
-          element={<ProtectedRoutes />}
-        />
+        <Route path="/*" element={<ProtectedRoutes />} />
       </Routes>
     </BrowserRouter>
   );
 }
-

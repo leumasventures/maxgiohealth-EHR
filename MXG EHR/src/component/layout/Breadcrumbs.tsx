@@ -1,42 +1,35 @@
-"use client";
-
-import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { Link, useLocation } from "react-router-dom";
 
 export default function Breadcrumbs() {
-  const pathname = usePathname();
-
+  const { pathname } = useLocation();
   const parts = pathname.split("/").filter(Boolean);
 
+  if (parts.length === 0) return null;
+
   return (
-    <div className="mb-5 flex items-center gap-2 text-sm text-gray-500">
-      <Link href="/dashboard" className="hover:text-blue-600">
+    <nav className="mb-4 flex items-center gap-1 text-sm text-gray-500">
+      <Link to="/dashboard" className="hover:text-teal-600">
         Home
       </Link>
-
-      {parts.map((part, index) => {
-        const href =
-          "/" + parts.slice(0, index + 1).join("/");
-
+      {parts.map((part, i) => {
+        const href = "/" + parts.slice(0, i + 1).join("/");
         const label = part
           .replace(/-/g, " ")
-          .replace(/\b\w/g, (letter) =>
-            letter.toUpperCase()
-          );
-
+          .replace(/\b\w/g, (c) => c.toUpperCase());
+        const isLast = i === parts.length - 1;
         return (
-          <span key={href} className="flex items-center gap-2">
-            <span>/</span>
-
-            <Link
-              href={href}
-              className="hover:text-blue-600"
-            >
-              {label}
-            </Link>
+          <span key={href} className="flex items-center gap-1">
+            <span className="text-gray-300">/</span>
+            {isLast ? (
+              <span className="font-medium text-gray-700">{label}</span>
+            ) : (
+              <Link to={href} className="hover:text-teal-600">
+                {label}
+              </Link>
+            )}
           </span>
         );
       })}
-    </div>
+    </nav>
   );
 }
